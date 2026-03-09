@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRNE Dashboard - Healthcare IT Support System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0A7EA4;
+            --primary-dark: #065A75;
+            --accent: #FF6B35;
+            --success: #2EC4B6;
+            --warning: #FFB800;
+            --danger: #E63946;
+            --bg-main: #F8FAFB;
+            --bg-card: #FFFFFF;
+            --text-primary: #1A202C;
+            --text-secondary: #4A5568;
+            --text-muted: #718096;
+            --border: #E2E8F0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem 2.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dashboard-header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.75rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            border-left: 4px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card.open { border-color: var(--warning); }
+        .stat-card.in-progress { border-color: var(--primary); }
+        .stat-card.resolved { border-color: var(--success); }
+        .stat-card.critical { border-color: var(--danger); }
+
+        .stat-card .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .ticket-item {
+            padding: 1.25rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .ticket-item:hover {
+            box-shadow: var(--shadow-sm);
+            border-color: var(--primary);
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .ticket-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-high {
+            background: #FEE;
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: #FFF4E6;
+            color: var(--warning);
+        }
+
+        .priority-low {
+            background: #E6F7F5;
+            color: var(--success);
+        }
+
+        .ticket-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-open {
+            background: #FFF4E6;
+            color: var(--warning);
+        }
+
+        .status-in-progress {
+            background: #E6F3F9;
+            color: var(--primary);
+        }
+
+        .status-resolved {
+            background: #E6F7F5;
+            color: var(--success);
+        }
+
+        .activity-feed {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .activity-user {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.875rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--bg-main);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-main);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: 'Manrope', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .submit-btn {
+            flex: 1;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .cancel-btn {
+            flex: 1;
+            padding: 1rem;
+            background: white;
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cancel-btn:hover {
+            background: var(--bg-main);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>DRNE Dashboard</h1>
+            <p>Digital RN Experience Interactive Dashboard - Healthcare IT Support System</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card open" onclick="filterTickets('open')">
+                <div class="stat-label">Open Tickets</div>
+                <div class="stat-number" id="stat-open">12</div>
+                <div class="stat-description">Awaiting assignment</div>
+            </div>
+            <div class="stat-card in-progress" onclick="filterTickets('in-progress')">
+                <div class="stat-label">In Progress</div>
+                <div class="stat-number" id="stat-progress">8</div>
+                <div class="stat-description">Being worked on</div>
+            </div>
+            <div class="stat-card resolved" onclick="filterTickets('resolved')">
+                <div class="stat-label">Resolved Today</div>
+                <div class="stat-number" id="stat-resolved">15</div>
+                <div class="stat-description">Completed tickets</div>
+            </div>
+            <div class="stat-card critical" onclick="filterTickets('high')">
+                <div class="stat-label">Critical Issues</div>
+                <div class="stat-number" id="stat-critical">3</div>
+                <div class="stat-description">Require immediate attention</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Ticket Management -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Active Tickets</h2>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search tickets by ID or description..." onkeyup="searchTickets()">
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="setFilter('all')">All</button>
+                    <button class="filter-tab" onclick="setFilter('my')">My Tickets</button>
+                    <button class="filter-tab" onclick="setFilter('unassigned')">Unassigned</button>
+                </div>
+
+                <!-- Tickets List -->
+                <div id="ticketsList">
+                    <!-- Tickets will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Activity Feed & Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Activity</h2>
+                </div>
+
+                <div class="activity-feed" id="activityFeed">
+                    <!-- Activity items will be dynamically inserted here -->
+                </div>
+
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="openTicketModal()">Submit New Ticket</button>
+                    <button class="action-btn secondary" onclick="showAllReports()">View Reports</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Ticket Modal -->
+    <div class="modal-overlay" id="ticketModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Submit New IT Support Ticket</h3>
+                <button class="close-btn" onclick="closeTicketModal()">×</button>
+            </div>
+            
+            <form id="ticketForm" onsubmit="submitTicket(event)">
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" class="form-input" id="ticketTitle" required placeholder="Brief description of the issue">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-textarea" id="ticketDescription" required placeholder="Detailed description of the issue and impact on patient care"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Priority *</label>
+                    <select class="form-select" id="ticketPriority" required>
+                        <option value="">Select priority level</option>
+                        <option value="high">High - Critical patient safety issue</option>
+                        <option value="medium">Medium - Impacts workflow efficiency</option>
+                        <option value="low">Low - Minor issue or feature request</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-input" id="ticketLocation" placeholder="Unit/Department (e.g., ICU, Emergency)">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Name *</label>
+                    <input type="text" class="form-input" id="ticketSubmitter" required placeholder="Your full name">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">Submit Ticket</button>
+                    <button type="button" class="cancel-btn" onclick="closeTicketModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">IT Support Analytics & Reports</h3>
+                <button class="close-btn" onclick="closeReportModal()">×</button>
+            </div>
+            
+            <div id="reportContent">
+                <!-- Report content will be dynamically generated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // DATA MANAGEMENT
+        // ============================================
+        
+        // Sample initial tickets (demo data)
+        const sampleTickets = [
+            {
+                id: 'DRNE-2841',
+                title: 'EHR login timeout too short',
+                description: 'System logs out after 5 minutes of inactivity during patient care',
+                priority: 'high',
+                status: 'open',
+                assignedTo: null,
+                submitter: 'Sarah Johnson, RN',
+                location: 'Emergency Department',
+                created: new Date('2024-02-24T08:30:00'),
+                updated: new Date('2024-02-24T08:30:00')
+            },
+            {
+                id: 'DRNE-2842',
+                title: 'Medication scanner not connecting',
+                description: 'Barcode scanner for medication administration failing to connect',
+                priority: 'high',
+                status: 'in-progress',
+                assignedTo: 'Michael Park',
+                submitter: 'Jennifer Lee, RN',
+                location: 'Medical-Surgical Floor 3',
+                created: new Date('2024-02-24T09:15:00'),
+                updated: new Date('2024-02-24T10:45:00')
+            },
+            {
+                id: 'DRNE-2843',
+                title: 'Printer in nurses station offline',
+                description: 'Unable to print patient labels and documentation',
+                priority: 'medium',
+                status: 'open',
+                assignedTo: null,
+                submitter: 'Robert Chen, RN',
+                location: 'ICU',
+                created: new Date('2024-02-24T10:00:00'),
+                updated: new Date('2024-02-24T10:00:00')
+            },
+            {
+                id: 'DRNE-2844',
+                title: 'Font size too small in patient records',
+                description: 'Difficult to read vital signs chart - patient safety concern',
+                priority: 'medium',
+                status: 'open',
+                assignedTo: null,
+                submitter: 'Maria Garcia, RN',
+                location: 'Cardiology',
+                created: new Date('2024-02-24T11:20:00'),
+                updated: new Date('2024-02-24T11:20:00')
+            },
+            {
+                id: 'DRNE-2840',
+                title: 'Mobile workstation battery draining quickly',
+                description: 'Computer cart battery only lasting 2 hours instead of 8',
+                priority: 'low',
+                status: 'resolved',
+                assignedTo: 'David Kim',
+                submitter: 'Amanda White, RN',
+                location: 'Pediatrics',
+                created: new Date('2024-02-23T14:00:00'),
+                updated: new Date('2024-02-24T09:30:00')
+            }
+        ];
+
+        // Load tickets from localStorage or use sample data
+        function loadTickets() {
+            const stored = localStorage.getItem('drneTickets');
+            return stored ? JSON.parse(stored) : sampleTickets;
+        }
+
+        // Save tickets to localStorage
+        function saveTickets() {
+            localStorage.setItem('drneTickets', JSON.stringify(tickets));
+            updateStatistics();
+        }
+
+        // Initialize tickets array
+        let tickets = loadTickets();
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // ============================================
+        // TICKET MANAGEMENT FUNCTIONS
+        // ============================================
+
+        // Generate new ticket ID
+        function generateTicketId() {
+            const existingIds = tickets.map(t => parseInt(t.id.split('-')[1]));
+            const maxId = Math.max(...existingIds, 2840);
+            return `DRNE-${maxId + 1}`;
+        }
+
+        // Submit new ticket
+        function submitTicket(event) {
+            event.preventDefault();
+            
+            const newTicket = {
+                id: generateTicketId(),
+                title: document.getElementById('ticketTitle').value,
+                description: document.getElementById('ticketDescription').value,
+                priority: document.getElementById('ticketPriority').value,
+                status: 'open',
+                assignedTo: null,
+                submitter: document.getElementById('ticketSubmitter').value,
+                location: document.getElementById('ticketLocation').value || 'Not specified',
+                created: new Date(),
+                updated: new Date()
+            };
+
+            // Add to tickets array
+            tickets.unshift(newTicket);
+            
+            // Save to localStorage
+            saveTickets();
+            
+            // Add activity
+            addActivity(`New ticket created: ${newTicket.id}`, 'just now');
+            
+            // Close modal and reset form
+            closeTicketModal();
+            document.getElementById('ticketForm').reset();
+            
+            // Refresh display
+            renderTickets();
+            
+            // Show success message
+            alert(`Ticket ${newTicket.id} submitted successfully!`);
+        }
+
+        // ============================================
+        // FILTERING & SEARCH
+        // ============================================
+
+        // Set active filter
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            // Update active tab styling
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Re-render tickets
+            renderTickets();
+        }
+
+        // Filter tickets by status (when clicking stat cards)
+        function filterTickets(status) {
+            currentFilter = status;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Re-render tickets
+            renderTickets();
+        }
+
+        // Search tickets
+        function searchTickets() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            renderTickets();
+        }
+
+        // Get filtered tickets
+        function getFilteredTickets() {
+            let filtered = tickets;
+            
+            // Apply status filter
+            if (currentFilter === 'my') {
+                // In a real app, this would filter by current user
+                filtered = filtered.filter(t => t.assignedTo);
+            } else if (currentFilter === 'unassigned') {
+                filtered = filtered.filter(t => !t.assignedTo);
+            } else if (currentFilter === 'open') {
+                filtered = filtered.filter(t => t.status === 'open');
+            } else if (currentFilter === 'in-progress') {
+                filtered = filtered.filter(t => t.status === 'in-progress');
+            } else if (currentFilter === 'resolved') {
+                filtered = filtered.filter(t => t.status === 'resolved');
+            } else if (currentFilter === 'high') {
+                filtered = filtered.filter(t => t.priority === 'high');
+            }
+            
+            // Apply search query
+            if (searchQuery) {
+                filtered = filtered.filter(t => 
+                    t.id.toLowerCase().includes(searchQuery) ||
+                    t.title.toLowerCase().includes(searchQuery) ||
+                    t.description.toLowerCase().includes(searchQuery) ||
+                    t.submitter.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            return filtered;
+        }
+
+        // ============================================
+        // RENDERING FUNCTIONS
+        // ============================================
+
+        // Render tickets list
+        function renderTickets() {
+            const ticketsList = document.getElementById('ticketsList');
+            const filtered = getFilteredTickets();
+            
+            if (filtered.length === 0) {
+                ticketsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No tickets found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            ticketsList.innerHTML = filtered.map(ticket => `
+                <div class="ticket-item">
+                    <div class="ticket-header">
+                        <span class="ticket-id">${ticket.id}</span>
+                        <span class="priority-badge priority-${ticket.priority}">
+                            ${ticket.priority}
+                        </span>
+                    </div>
+                    <div class="ticket-title">${ticket.title}</div>
+                    <div class="ticket-meta">
+                        <span class="status-badge status-${ticket.status}">
+                            ${ticket.status.replace('-', ' ')}
+                        </span>
+                        <span>${ticket.location}</span>
+                        ${ticket.assignedTo ? `<span>👤 ${ticket.assignedTo}</span>` : '<span>⚪ Unassigned</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const open = tickets.filter(t => t.status === 'open').length;
+            const inProgress = tickets.filter(t => t.status === 'in-progress').length;
+            const resolved = tickets.filter(t => {
+                const today = new Date().toDateString();
+                return t.status === 'resolved' && new Date(t.updated).toDateString() === today;
+            }).length;
+            const critical = tickets.filter(t => t.priority === 'high' && t.status !== 'resolved').length;
+            
+            document.getElementById('stat-open').textContent = open;
+            document.getElementById('stat-progress').textContent = inProgress;
+            document.getElementById('stat-resolved').textContent = resolved;
+            document.getElementById('stat-critical').textContent = critical;
+        }
+
+        // Add activity to feed
+        function addActivity(description, time = 'just now') {
+            const activityFeed = document.getElementById('activityFeed');
+            const activityItem = document.createElement('div');
+            activityItem.className = 'activity-item';
+            activityItem.innerHTML = `
+                <div class="activity-time">${time}</div>
+                <div class="activity-description">${description}</div>
+            `;
+            activityFeed.insertBefore(activityItem, activityFeed.firstChild);
+        }
+
+        // Render activity feed
+        function renderActivityFeed() {
+            const activityFeed = document.getElementById('activityFeed');
+            activityFeed.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-time">5 minutes ago</div>
+                    <div class="activity-description">
+                        <span class="activity-user">Sarah Johnson</span> submitted ticket #${tickets[0]?.id || 'DRNE-2841'}
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-time">15 minutes ago</div>
+                    <div class="activity-description">
+                        <span class="activity-user">David Kim</span> resolved #DRNE-2840
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-time">1 hour ago</div>
+                    <div class="activity-description">
+                        <span class="activity-user">Michael Park</span> assigned #DRNE-2842 to himself
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-time">2 hours ago</div>
+                    <div class="activity-description">
+                        New ticket created: <span class="activity-user">#DRNE-2844</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+
+        // Open ticket submission modal
+        function openTicketModal() {
+            document.getElementById('ticketModal').classList.add('active');
+            document.getElementById('ticketTitle').focus();
+        }
+
+        // Close ticket submission modal
+        function closeTicketModal() {
+            document.getElementById('ticketModal').classList.remove('active');
+        }
+
+        // Show all reports
+        function showAllReports() {
+            openReportModal();
+        }
+
+        // Open report modal
+        function openReportModal() {
+            document.getElementById('reportModal').classList.add('active');
+            generateReport();
+        }
+
+        // Close report modal
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        // Generate comprehensive report
+        function generateReport() {
+            const reportContent = document.getElementById('reportContent');
+            
+            // Calculate statistics
+            const totalTickets = tickets.length;
+            const openTickets = tickets.filter(t => t.status === 'open').length;
+            const inProgressTickets = tickets.filter(t => t.status === 'in-progress').length;
+            const resolvedTickets = tickets.filter(t => t.status === 'resolved').length;
+            const highPriority = tickets.filter(t => t.priority === 'high').length;
+            const mediumPriority = tickets.filter(t => t.priority === 'medium').length;
+            const lowPriority = tickets.filter(t => t.priority === 'low').length;
+            
+            // Calculate average resolution time (demo calculation)
+            const avgResolutionTime = '4.2 hours';
+            
+            // Get top submitters
+            const submitterCounts = {};
+            tickets.forEach(t => {
+                submitterCounts[t.submitter] = (submitterCounts[t.submitter] || 0) + 1;
+            });
+            const topSubmitters = Object.entries(submitterCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            reportContent.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.5rem; color: var(--text-primary); margin-bottom: 1rem; font-family: 'Outfit', sans-serif;">
+                        📊 IT Support Analytics Dashboard
+                    </h3>
+                    <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                        Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+                    </p>
+                    
+                    <!-- Summary Stats -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                        <div style="background: #F0F9FF; padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Total Tickets</div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">${totalTickets}</div>
+                        </div>
+                        <div style="background: #FFF4E6; padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Open</div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--warning);">${openTickets}</div>
+                        </div>
+                        <div style="background: #E6F3F9; padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--primary);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">In Progress</div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">${inProgressTickets}</div>
+                        </div>
+                        <div style="background: #E6F7F5; padding: 1.25rem; border-radius: 8px; border-left: 4px solid var(--success);">
+                            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Resolved</div>
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--success);">${resolvedTickets}</div>
+                        </div>
+                    </div>
+
+                    <!-- Priority Breakdown -->
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 2rem;">
+                        <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Priority Distribution</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">🔴 High Priority</span>
+                                <span style="font-weight: 600; color: var(--danger);">${highPriority} tickets</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">🟡 Medium Priority</span>
+                                <span style="font-weight: 600; color: var(--warning);">${mediumPriority} tickets</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">🟢 Low Priority</span>
+                                <span style="font-weight: 600; color: var(--success);">${lowPriority} tickets</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 2rem;">
+                        <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Performance Metrics</h4>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">Average Resolution Time</span>
+                                <span style="font-weight: 600; color: var(--primary);">${avgResolutionTime}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">First Response Time</span>
+                                <span style="font-weight: 600; color: var(--primary);">38 minutes</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">Resolution Rate</span>
+                                <span style="font-weight: 600; color: var(--success);">89%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Submitters -->
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 2rem;">
+                        <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Most Active Submitters</h4>
+                        ${topSubmitters.map((sub, idx) => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;">
+                                <span style="color: var(--text-secondary);">${idx + 1}. ${sub[0]}</span>
+                                <span style="font-weight: 600; color: var(--primary);">${sub[1]} tickets</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Sample Detailed Ticket Report -->
+                    <div style="background: #F8FAFB; padding: 1.5rem; border-radius: 8px; border: 2px solid var(--primary); margin-bottom: 1rem;">
+                        <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary); font-family: 'Outfit', sans-serif;">
+                            📋 Sample Detailed Ticket Report: DRNE-2841
+                        </h4>
+                        
+                        <div style="background: white; padding: 1.25rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                                <div>
+                                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+                                        EHR login timeout too short
+                                    </div>
+                                    <div style="color: var(--text-muted); font-size: 0.875rem;">
+                                        Submitted by Sarah Johnson, RN
+                                    </div>
+                                </div>
+                                <span class="priority-badge priority-high" style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #FEE; color: var(--danger);">
+                                    HIGH PRIORITY
+                                </span>
+                            </div>
+
+                            <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+                                <h5 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Issue Description
+                                </h5>
+                                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                                    System logs out after 5 minutes of inactivity during patient care. This creates a significant workflow disruption when nurses are performing hands-on care and cannot constantly interact with the computer. The short timeout forces repeated logins, wasting valuable time that should be spent on patient care.
+                                </p>
+
+                                <h5 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Impact on Patient Care
+                                </h5>
+                                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                                    <strong style="color: var(--danger);">Patient Safety Risk:</strong> During emergency situations, nurses cannot afford to spend 30-45 seconds logging back in. This delay could be critical when accessing medication orders or vital patient information.
+                                </p>
+
+                                <h5 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Details
+                                </h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                                    <div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Location</div>
+                                        <div style="font-weight: 600; color: var(--text-primary);">Emergency Department</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Status</div>
+                                        <div style="font-weight: 600; color: var(--warning);">Open - Awaiting Assignment</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Submitted</div>
+                                        <div style="font-weight: 600; color: var(--text-primary);">Feb 24, 2024 8:30 AM</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.25rem;">Assigned To</div>
+                                        <div style="font-weight: 600; color: var(--text-muted);">Unassigned</div>
+                                    </div>
+                                </div>
+
+                                <h5 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Recommended Action
+                                </h5>
+                                <p style="color: var(--text-secondary); line-height: 1.6; background: #FFF4E6; padding: 1rem; border-radius: 6px; border-left: 3px solid var(--warning);">
+                                    <strong>IT Team Recommendation:</strong> Increase timeout to 15 minutes for clinical staff with active patient assignments. Implement proximity-based auto-lock when nurse moves away from workstation. This balances security with workflow efficiency.
+                                </p>
+
+                                <h5 style="font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Timeline & Updates
+                                </h5>
+                                <div style="border-left: 2px solid var(--border); padding-left: 1rem; margin-left: 0.5rem;">
+                                    <div style="margin-bottom: 0.75rem;">
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Feb 24, 2024 8:30 AM</div>
+                                        <div style="color: var(--text-secondary);">Ticket created by Sarah Johnson, RN</div>
+                                    </div>
+                                    <div style="margin-bottom: 0.75rem;">
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">Awaiting Action</div>
+                                        <div style="color: var(--text-secondary);">Pending IT specialist assignment</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: #E6F3F9; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                <strong style="color: var(--primary);">📌 Note:</strong> This ticket represents a common pain point identified in the original DRNE research: clinical staff need IT systems designed with their workflow in mind, not just security requirements.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Report Footer -->
+                    <div style="border-top: 2px solid var(--border); padding-top: 1rem; margin-top: 2rem; color: var(--text-muted); font-size: 0.875rem;">
+                        <p>This report demonstrates the analytics and reporting capabilities of the DRNE Dashboard system. In production, reports would include historical trends, resolution patterns, and predictive analytics.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('ticketModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTicketModal();
+            }
+        });
+
+        document.getElementById('reportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReportModal();
+            }
+        });
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTickets();
+            renderActivityFeed();
+            updateStatistics();
+            
+            console.log('DRNE Dashboard loaded successfully!');
+            console.log(`Total tickets: ${tickets.length}`);
+            console.log('This is an interactive prototype demonstrating UX design and basic JavaScript functionality.');
+        });
+    </script>
+</body>
+</html>
